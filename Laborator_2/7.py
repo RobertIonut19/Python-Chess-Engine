@@ -15,15 +15,15 @@ def isPalindrome(num):
 
 def listPalindrome(list):
     count = 0
-    greatestPalindrome = 0
+    greatest_palindrome = 0
 
     for i in range(len(list)):
         if isPalindrome(list[i]):
             count += 1
-            if list[i] > greatestPalindrome:
-                greatestPalindrome = list[i]
+            if list[i] > greatest_palindrome:
+                greatest_palindrome = list[i]
 
-    result = (count, greatestPalindrome)
+    result = (count, greatest_palindrome)
 
     return result
 

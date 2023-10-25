@@ -1,19 +1,16 @@
-def ascii(x = 1, list=[], flag = True):
+def ascii(x=1, input_list=[], flag=True):
     result = []
-    i = 0
-    for string in list:
+    for string in input_list:
         char_list = []
         for char in string:
-            if flag and (ord(char) % x == 0):
-                char_list.append(char)
-            elif flag == False and (ord(char) % x != 0):
+            if (flag and ord(char) % x == 0) or (not flag and ord(char) % x != 0):
                 char_list.append(char)
         if char_list:
-            result.append("".join(char_list))
+            result.append(char_list)
     return result
 
 def main():
-    print(ascii(x = 2, list=["test", "hello", "lab002"], flag = False))
+    print(ascii(x = 2, input_list=["test", "hello", "lab002"], flag = False))
 
 main()
 
