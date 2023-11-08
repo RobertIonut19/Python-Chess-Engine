@@ -1,2 +1,5 @@
 # Python
-Python Programming, UAIC, FII
+Python Programming, FII, UAIC
+
+Rășcanu Robert-Ionuț
+Group 3A6
