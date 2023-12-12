@@ -58,13 +58,33 @@ def main():
     game_state = ChessEngine.GameState()
     load_images()
 
+    squareSelected = () # a tuple to store the coordinates of pieces selected
+                        # keeps track of the last click on the table (row ,col)
+    playerClicks = []   # keeps track of playerClicks  (example [(6,1), (4, 1)] )
+
     running = True
     while running:
         for event in p.event.get():
             if event.type == p.QUIT:
                 running = False
-                p.quit()
-                sys.exit()
+            elif event.type == p.MOUSEBUTTONDOWN:
+                location = p.mouse.get_pos() # (location[0] // SQ_SIZE, location[1] // SQ_SIZE)
+                col =  location[0]//SQ_SIZE
+                row =  location[1]//SQ_SIZE
+
+                if squareSelected == (row, col): #implement the undo action - unselect a piece
+                    squareSelected = () #no more pieces selected
+                    playerClicks = [] #no more clicks
+                else:
+                    squareSelected = (row, col)
+                    playerClicks.append(squareSelected) #it will store both clicks
+                if len(playerClicks) == 2:
+                    move = ChessEngine.Move(playerClicks[0], playerClicks[1], game_state.board)
+                    print(move.get_chess_notation())
+                    game_state.makeMove(move)
+                    squareSelected = () #reset the user clicks
+                    playerClicks = []
+
         clock.tick(MAX_FPS)
         p.display.flip()
         drawGameState(screen, game_state)
