@@ -56,34 +56,68 @@ def main():
     screen.fill(p.Color("white"))
 
     game_state = ChessEngine.GameState()
+    valid_moves = game_state.getValidMoves()
+    move_made = False #flag variable for when a move is made
     load_images()
 
     squareSelected = () # a tuple to store the coordinates of pieces selected
                         # keeps track of the last click on the table (row ,col)
     playerClicks = []   # keeps track of playerClicks  (example [(6,1), (4, 1)] )
 
+    font = p.font.Font(None, 36)
+    turn_text = font.render("Turn: White", True, p.Color("black"))
+
     running = True
     while running:
         for event in p.event.get():
             if event.type == p.QUIT:
                 running = False
+            #mouse handler
             elif event.type == p.MOUSEBUTTONDOWN:
                 location = p.mouse.get_pos() # (location[0] // SQ_SIZE, location[1] // SQ_SIZE)
                 col =  location[0]//SQ_SIZE
                 row =  location[1]//SQ_SIZE
 
-                if squareSelected == (row, col): #implement the undo action - unselect a piece
-                    squareSelected = () #no more pieces selected
-                    playerClicks = [] #no more clicks
+                if squareSelected == (row, col): #unselect a piece
+                    playerClicks = [(row, col)]
+                    print("Player clicks: ", playerClicks, ", " , "squareSelected: ", squareSelected, game_state.whiteToMove)
                 else:
                     squareSelected = (row, col)
                     playerClicks.append(squareSelected) #it will store both clicks
+                    print(len(playerClicks))
+                    if (len(playerClicks) == 0):
+                        if (game_state.whiteToMove and game_state.board[row][col][0] != 'w') or (not game_state.whiteToMove and game_state.board[row][col][0] != 'b'):
+                            playerClicks = []
+                            squareSelected = ()
+                            print("Prima selectie", "Player clicks: ", playerClicks, ", ", "squareSelected: ", squareSelected, game_state.whiteToMove)
+                    elif (len(playerClicks) == 2):
+                        if (game_state.whiteToMove and game_state.board[row][col][0] == 'w') or (not game_state.whiteToMove and game_state.board[row][col][0] == 'b'):
+                            playerClicks = [(row, col)]
+                            squareSelected = (row, col)
+                            print("A doua selectie", "Player clicks: ", playerClicks, ", " , "squareSelected: ", squareSelected, game_state.whiteToMove)
+                    print("Player clicks: ", playerClicks, ", " , "squareSelected: ", squareSelected, game_state.whiteToMove)
                 if len(playerClicks) == 2:
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], game_state.board)
-                    print(move.get_chess_notation())
-                    game_state.makeMove(move)
+                    #print(move.get_chess_notation())
+                    if move in valid_moves:
+                        game_state.makeMove(move)
+                        move_made = True
                     squareSelected = () #reset the user clicks
                     playerClicks = []
+            #key handler
+            elif event.type == p.KEYDOWN:
+                if event.key == p.K_z: #undo when 'z' is pressed
+                    game_state.undoMove()
+                    move_made = True
+
+        if move_made:
+            valid_moves = game_state.getValidMoves()
+            move_made = False
+            turn_text = font.render("Turn: " + ("White" if game_state.whiteToMove else "Black"), True, p.Color("black"))
+
+        if move_made:
+            valid_moves = game_state.getValidMoves()
+            move_made = False
 
         clock.tick(MAX_FPS)
         p.display.flip()
@@ -97,6 +131,22 @@ def drawGameState(screen, gs):
     drawBoard(screen) #draw squares on the board
 
     drawPieces(screen, gs.board) #draw pieces on top of those squares
+
+    drawNotation(screen)
+
+def drawNotation(screen):
+    """
+    This function will draw the chess notation on the side.
+    """
+    font = p.font.Font(None, 24)
+    for i in range(DIMENSION):
+        notation_text = font.render(str(DIMENSION - i), True, p.Color("black"))
+        screen.blit(notation_text, (WIDTH + 5, i * SQ_SIZE + 5))  # Display row notation
+
+    for i in range(DIMENSION):
+        notation_text = font.render(chr(ord('a') + i), True, p.Color("black"))
+        screen.blit(notation_text, (WIDTH + i * SQ_SIZE + 5, HEIGHT - 25))  # Display column notation
+
 
 
 def drawBoard(screen):
