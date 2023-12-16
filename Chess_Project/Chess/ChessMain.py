@@ -22,7 +22,7 @@ Usage:
 """
 
 import sys
-from Chess import ChessEngine
+from Chess_Project.Chess import ChessEngine
 import pygame as p
 
 WIDTH = 512  # width of the chessboard display window
@@ -80,22 +80,17 @@ def main():
 
                 if squareSelected == (row, col): #unselect a piece
                     playerClicks = [(row, col)]
-                    print("Player clicks: ", playerClicks, ", " , "squareSelected: ", squareSelected, game_state.whiteToMove)
                 else:
                     squareSelected = (row, col)
                     playerClicks.append(squareSelected) #it will store both clicks
-                    print(len(playerClicks))
                     if (len(playerClicks) == 0):
                         if (game_state.whiteToMove and game_state.board[row][col][0] != 'w') or (not game_state.whiteToMove and game_state.board[row][col][0] != 'b'):
                             playerClicks = []
                             squareSelected = ()
-                            print("Prima selectie", "Player clicks: ", playerClicks, ", ", "squareSelected: ", squareSelected, game_state.whiteToMove)
                     elif (len(playerClicks) == 2):
                         if (game_state.whiteToMove and game_state.board[row][col][0] == 'w') or (not game_state.whiteToMove and game_state.board[row][col][0] == 'b'):
                             playerClicks = [(row, col)]
                             squareSelected = (row, col)
-                            print("A doua selectie", "Player clicks: ", playerClicks, ", " , "squareSelected: ", squareSelected, game_state.whiteToMove)
-                    print("Player clicks: ", playerClicks, ", " , "squareSelected: ", squareSelected, game_state.whiteToMove)
                 if len(playerClicks) == 2:
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], game_state.board)
                     #print(move.get_chess_notation())
