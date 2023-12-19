@@ -26,12 +26,12 @@ from Chess_Project.Chess import ChessEngine
 import pygame as p
 
 WIDTH = 512  # width of the chessboard display window
-HEIGHT = 512 # height of the chessboard display window
-DIMENSION = 8 # size of the chessboard (8x8)
+HEIGHT = 512  # height of the chessboard display window
+DIMENSION = 8  # size of the chessboard (8x8)
 
-SQ_SIZE = HEIGHT // DIMENSION # size of each square on the chessboard
+SQ_SIZE = HEIGHT // DIMENSION  # size of each square on the chessboard
 
-MAX_FPS = 15 # maximum frames per second for the display
+MAX_FPS = 15  # maximum frames per second for the display
 IMAGES = {}
 
 
@@ -43,6 +43,7 @@ def load_images():
     pieces = ["wp", "wR", "wN", "wB", "wK", "wQ", "bp", "bR", "bN", "bB", "bK", "bQ"]
     for piece in pieces:
         IMAGES[piece] = p.transform.scale(p.image.load("images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+
 
 def main():
     """
@@ -57,12 +58,12 @@ def main():
 
     game_state = ChessEngine.GameState()
     valid_moves = game_state.getValidMoves()
-    move_made = False #flag variable for when a move is made
+    move_made = False  # flag variable for when a move is made
     load_images()
 
-    squareSelected = () # a tuple to store the coordinates of pieces selected
-                        # keeps track of the last click on the table (row ,col)
-    playerClicks = []   # keeps track of playerClicks  (example [(6,1), (4, 1)] )
+    squareSelected = ()  # a tuple to store the coordinates of pieces selected
+    # keeps track of the last click on the table (row ,col)
+    playerClicks = []  # keeps track of playerClicks  (example [(6,1), (4, 1)] )
 
     font = p.font.Font(None, 36)
     turn_text = font.render("Turn: White", True, p.Color("black"))
@@ -72,39 +73,41 @@ def main():
         for event in p.event.get():
             if event.type == p.QUIT:
                 running = False
-            #mouse handler
+            # mouse handler
             elif event.type == p.MOUSEBUTTONDOWN:
-                location = p.mouse.get_pos() # (location[0] // SQ_SIZE, location[1] // SQ_SIZE)
-                col =  location[0]//SQ_SIZE
-                row =  location[1]//SQ_SIZE
+                location = p.mouse.get_pos()  # (location[0] // SQ_SIZE, location[1] // SQ_SIZE)
+                col = location[0] // SQ_SIZE
+                row = location[1] // SQ_SIZE
 
-                if squareSelected == (row, col): #unselect a piece
+                if squareSelected == (row, col):  # unselect a piece
                     playerClicks = [(row, col)]
                 else:
                     squareSelected = (row, col)
-                    playerClicks.append(squareSelected) #it will store both clicks
+                    playerClicks.append(squareSelected)  # it will store both clicks
                     if (len(playerClicks) == 0):
-                        if (game_state.whiteToMove and game_state.board[row][col][0] != 'w') or (not game_state.whiteToMove and game_state.board[row][col][0] != 'b'):
+                        if (game_state.whiteToMove and game_state.board[row][col][0] != 'w') or (
+                                not game_state.whiteToMove and game_state.board[row][col][0] != 'b'):
                             playerClicks = []
                             squareSelected = ()
                     elif (len(playerClicks) == 2):
-                        if (game_state.whiteToMove and game_state.board[row][col][0] == 'w') or (not game_state.whiteToMove and game_state.board[row][col][0] == 'b'):
+                        if (game_state.whiteToMove and game_state.board[row][col][0] == 'w') or (
+                                not game_state.whiteToMove and game_state.board[row][col][0] == 'b'):
                             playerClicks = [(row, col)]
                             squareSelected = (row, col)
                 if len(playerClicks) == 2:
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], game_state.board)
-                    #print(move.get_chess_notation())
+                    # print(move.get_chess_notation())
                     for i in range(len(valid_moves)):
                         if move == valid_moves[i]:
                             game_state.makeMove(valid_moves[i])
                             move_made = True
-                            squareSelected = () #reset the user clicks
+                            squareSelected = ()  # reset the user clicks
                             playerClicks = []
                     if not move_made:
                         playerClicks = [squareSelected]
-            #key handler
+            # key handler
             elif event.type == p.KEYDOWN:
-                if event.key == p.K_z: #undo when 'z' is pressed
+                if event.key == p.K_z:  # undo when 'z' is pressed
                     game_state.undoMove()
                     move_made = True
 
@@ -126,11 +129,12 @@ def drawGameState(screen, gs):
     """
     This function will be responsible for all the graphics within a current game state.
     """
-    drawBoard(screen) #draw squares on the board
+    drawBoard(screen)  # draw squares on the board
 
-    drawPieces(screen, gs.board) #draw pieces on top of those squares
+    drawPieces(screen, gs.board)  # draw pieces on top of those squares
 
     drawNotation(screen)
+
 
 def drawNotation(screen):
     """
@@ -146,7 +150,6 @@ def drawNotation(screen):
         screen.blit(notation_text, (WIDTH + i * SQ_SIZE + 5, HEIGHT - 25))  # Display column notation
 
 
-
 def drawBoard(screen):
     """
     This function will draw the squares on the board.
@@ -154,8 +157,10 @@ def drawBoard(screen):
     colors = [p.Color("white"), p.Color("grey")]
     for r in range(DIMENSION):
         for c in range(DIMENSION):
-            color = colors[((r + c) % 2)] #all the even squares will be white, all the odd squares will be green
-            p.draw.rect(screen, color, p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+            color = colors[((r + c) % 2)]  # all the even squares will be white, all the odd squares will be green
+            p.draw.rect(screen, color, p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
+
+
 def drawPieces(screen, board):
     """
     This function will draw the pieces on the board using the current GameState.board.
@@ -164,7 +169,8 @@ def drawPieces(screen, board):
         for c in range(DIMENSION):
             piece = board[r][c]
             if piece != "--":
-                screen.blit(IMAGES[piece], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+                screen.blit(IMAGES[piece], p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
+
 
 if __name__ == "__main__":
     main()
