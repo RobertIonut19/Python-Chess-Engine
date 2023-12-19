@@ -94,11 +94,14 @@ def main():
                 if len(playerClicks) == 2:
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], game_state.board)
                     #print(move.get_chess_notation())
-                    if move in valid_moves:
-                        game_state.makeMove(move)
-                        move_made = True
-                    squareSelected = () #reset the user clicks
-                    playerClicks = []
+                    for i in range(len(valid_moves)):
+                        if move == valid_moves[i]:
+                            game_state.makeMove(valid_moves[i])
+                            move_made = True
+                            squareSelected = () #reset the user clicks
+                            playerClicks = []
+                    if not move_made:
+                        playerClicks = [squareSelected]
             #key handler
             elif event.type == p.KEYDOWN:
                 if event.key == p.K_z: #undo when 'z' is pressed
