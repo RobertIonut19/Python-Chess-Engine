@@ -20,7 +20,7 @@ class GameState():
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "bp", "--", "--", "--", "--"],
+            ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
         ]
@@ -29,6 +29,10 @@ class GameState():
                                 'B': self.getBishopMoves, 'Q': self.getQueenMoves, 'K': self.getKingMoves}
         self.whiteToMove = True
         self.moveLog = []
+        self.whiteKingLocation = (7, 4)
+        self.blackKingLocation = (0, 4)
+        self.checkMate = False
+        self.staleMate = False
 
     def makeMove(self, move):
         '''
@@ -38,6 +42,10 @@ class GameState():
         self.board[move.end_row][move.end_col] = move.piece_moved
         self.moveLog.append(move) #for undo / history of the game
         self.whiteToMove = not self.whiteToMove #swap players
+        if move.piece_moved == 'wK':
+            self.whiteKingLocation = (move.end_row, move.end_col)
+        elif move.piece_moved == 'bK':
+            self.blackKingLocation = (move.end_row, move.end_col)
 
     def undoMove(self):
         '''
@@ -48,12 +56,55 @@ class GameState():
             self.board[move.start_row][move.start_col] = move.piece_moved
             self.board[move.end_row][move.end_col] = move.piece_captured
             self.whiteToMove = not self.whiteToMove
+            if move.piece_moved == 'wK':
+                self.whiteKingLocation = (move.start_row, move.start_col)
+            elif move.piece_moved == 'bK':
+                self.blackKingLocation = (move.start_row, move.start_col)
 
     def getValidMoves(self):
         '''
         All moves considering checks
         '''
-        return self.getAllPossibleMoves()
+        moves = self.getAllPossibleMoves()
+        for i in range(len(moves)-1, -1, -1):
+            self.makeMove(moves[i])
+            self.whiteToMove = not self.whiteToMove
+            if self.inCheck():
+                moves.remove(moves[i])
+            self.whiteToMove = not self.whiteToMove
+            self.undoMove()
+        if len(moves) == 0:
+            if self.inCheck():
+                self.checkMate = True
+            else:
+                self.staleMate = True
+        else:
+            self.checkMate = False
+            self.staleMate = False
+
+        return moves
+
+    def inCheck(self):
+        '''
+        Determine if the current player is in check
+        '''
+        if self.whiteToMove:
+            return self.squareUnderAttack(self.whiteKingLocation[0], self.whiteKingLocation[1])
+        else:
+            return self.squareUnderAttack(self.blackKingLocation[0], self.blackKingLocation[1])
+
+    def squareUnderAttack(self, r, c):
+        '''
+        Determine if the enemy can attack the square r, c
+        '''
+        self.whiteToMove = not self.whiteToMove
+        oppMoves = self.getAllPossibleMoves()
+        self.whiteToMove = not self.whiteToMove
+        for move in oppMoves:
+            if move.end_row == r and move.end_col == c:
+                return True
+        return False
+
 
     def getAllPossibleMoves(self):
         '''
@@ -357,7 +408,7 @@ class GameState():
                 if self.board[r+1][c] == "--":
                     moves.append(Move((r, c), (r+1, c), self.board))
                 elif self.board[r+1][c][0] == 'b':
-                    moves.append(Move((r, c), (r+1), c, self.board))
+                    moves.append(Move((r, c), (r+1, c), self.board))
             if r+1 <= 7 and c-1 >= 0:
                 if self.board[r+1][c-1] == "--":
                     moves.append(Move((r, c), (r+1, c-1), self.board))
@@ -398,7 +449,7 @@ class GameState():
                 if self.board[r+1][c] == "--":
                     moves.append(Move((r, c), (r+1, c), self.board))
                 elif self.board[r+1][c][0] == 'w':
-                    moves.append(Move((r, c), (r+1), c, self.board))
+                    moves.append(Move((r, c), (r+1, c), self.board))
             if r+1 <= 7 and c-1 >= 0:
                 if self.board[r+1][c-1] == "--":
                     moves.append(Move((r, c), (r+1, c-1), self.board))
