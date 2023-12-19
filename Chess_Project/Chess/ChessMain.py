@@ -20,7 +20,6 @@ Functions:
 Usage:
     - Run this script to start the chess game.
 """
-
 import sys
 from Chess_Project.Chess import ChessEngine
 import pygame as p
@@ -122,14 +121,33 @@ def main():
 
         clock.tick(MAX_FPS)
         p.display.flip()
-        drawGameState(screen, game_state)
+        drawGameState(screen, game_state, squareSelected)
 
+def highlight_squares(screen, game_state, valid_moves, squareSelected):
+    '''
+    Highlight square selected and moves for piece selected
+    '''
+    if squareSelected != ():
+        r, c = squareSelected
+        if game_state.board[r][c][0] == ('w' if game_state.whiteToMove else 'b'):  # square selected is a piece that can be moved
+            # highlight selected square
+            s = p.Surface((SQ_SIZE, SQ_SIZE))
+            s.set_alpha(100)  # transparency value -> 0 transparent; 255 opaque
+            s.fill(p.Color('green'))
+            screen.blit(s, (c * SQ_SIZE, r * SQ_SIZE))
+            # highlight moves from that square
+            s.fill(p.Color('yellow'))
+            for move in valid_moves:
+                if move.start_row == r and move.start_col == c:
+                    screen.blit(s, (move.end_col * SQ_SIZE, move.end_row * SQ_SIZE))
 
-def drawGameState(screen, gs):
+def drawGameState(screen, gs,  squareSelected):
     """
     This function will be responsible for all the graphics within a current game state.
     """
     drawBoard(screen)  # draw squares on the board
+
+    highlight_squares(screen, gs, gs.getValidMoves(), squareSelected)
 
     drawPieces(screen, gs.board)  # draw pieces on top of those squares
 
