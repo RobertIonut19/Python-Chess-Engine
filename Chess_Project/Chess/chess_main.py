@@ -27,8 +27,8 @@ import pygame as p
 B_WIDTH = 600  # width of the chessboard display window
 B_HEIGHT = 600  # height of the chessboard display window
 DIMENSION = 8  # size of the chessboard (8x8)
-LEFT_PANNEL_WIDTH = 200
-LEFT_PANNEL_HEIGTH = B_HEIGHT
+LEFT_PANEL_WIDTH = 200
+LEFT_PANEL_HEIGTH = B_HEIGHT
 
 SQ_SIZE = B_HEIGHT // DIMENSION  # size of each square on the chessboard
 
@@ -53,7 +53,7 @@ def main():
     This function initializes Pygame, sets up the display window, creates a GameState object, and prints the initial chessboard state.
     """
     p.init()
-    screen = p.display.set_mode((B_WIDTH + LEFT_PANNEL_WIDTH, B_HEIGHT + 25))
+    screen = p.display.set_mode((B_WIDTH + LEFT_PANEL_WIDTH, B_HEIGHT + 25))
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
 
@@ -70,7 +70,7 @@ def main():
 
     game_over = False
 
-    player_one = False
+    player_one = True
     player_two = False
 
     running = True
@@ -159,26 +159,43 @@ def main():
         draw_game_state(screen, game_state, square_selected)
 
 def highlight_squares(screen, game_state, valid_moves, square_selected):
-    '''
-    Highlight square selected and moves for piece selected
-    '''
+    """
+    Highlight square selected and moves for the selected piece.
+
+    Parameters:
+    - screen (pygame.display): The game screen.
+    - game_state (ChessGameState): The current state of the chess game.
+    - valid_moves (list): List of valid moves for the selected piece.
+    - square_selected (tuple): Tuple containing the (row, column) of the selected square.
+
+    Returns:
+    None
+    """
     if square_selected != ():
         r, c = square_selected
         if game_state.board[r][c][0] == ('w' if game_state.white_to_move else 'b'):  # square selected is a piece that can be moved
             # highlight selected square
             s = p.Surface((SQ_SIZE, SQ_SIZE))
             s.set_alpha(100)  # transparency value -> 0 transparent; 255 opaque
-            s.fill(p.Color('green'))
+            s.fill(p.Color(253,185,201))
             screen.blit(s, (c * SQ_SIZE, r * SQ_SIZE))
             # highlight moves from that square
-            s.fill(p.Color('yellow'))
+            s.fill(p.Color(187,246,243))
             for move in valid_moves:
                 if move.start_row == r and move.start_col == c:
                     screen.blit(s, (move.end_col * SQ_SIZE, move.end_row * SQ_SIZE))
 
-def draw_game_state(screen, gs,  square_selected):
+def draw_game_state(screen, gs, square_selected):
     """
-    This function will be responsible for all the graphics within a current game state.
+    Draw all the graphics within a current game state.
+
+    Parameters:
+    - screen (pygame.Surface): The game screen.
+    - gs (GameState): The current game state.
+    - square_selected (tuple): The selected square coordinates.
+
+    Returns:
+    None
     """
     drawBoard(screen)  # draw squares on the board
 
@@ -189,11 +206,15 @@ def draw_game_state(screen, gs,  square_selected):
     drawNotation(screen)
 
     draw_move_log(screen, gs)
-
-
 def drawNotation(screen):
     """
-    This function will draw the chess notation on the side.
+    Draw chess notation on the side of the chessboard.
+
+    Parameters:
+    - screen (pygame.Surface): The game screen.
+
+    Returns:
+    None
     """
     font = p.font.Font(None, 24)
     for i in range(DIMENSION):
@@ -206,40 +227,65 @@ def drawNotation(screen):
 
     line = p.Rect(B_WIDTH, 0, 3, B_HEIGHT)
     p.draw.rect(screen, p.Color("black"), line)
-    line = p.Rect(0, B_HEIGHT, B_WIDTH + LEFT_PANNEL_WIDTH, 3)
+    line = p.Rect(0, B_HEIGHT, B_WIDTH+3, 3)
     p.draw.rect(screen, p.Color("black"), line)
 
 
 def drawBoard(screen):
     """
-    This function will draw the squares on the board.
+    Draw the chessboard squares on the screen.
+
+    Parameters:
+    - screen (pygame.Surface): The game screen.
+
+    Returns:
+    None
     """
     global colors
     colors = [p.Color(227, 193, 111), p.Color(184, 139, 74)]
+
     for r in range(DIMENSION):
         for c in range(DIMENSION):
-            color = colors[((r + c) % 2)]  # all the even squares will be white, all the odd squares will be green
-            p.draw.rect(screen, color, p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
-
+            color = colors[((r + c) % 2)]  # Alternating colors for chessboard squares
+            rect = p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE)
+            p.draw.rect(screen, color, rect)
+import pygame as p
 
 def drawPieces(screen, board):
     """
-    This function will draw the pieces on the board using the current GameState.board.
+    Draw the chess pieces on the board using the current game state.
+
+    Parameters:
+    - screen (pygame.Surface): The game screen.
+    - board (list): The 2D list representing the chessboard.
+
+    Returns:
+    None
     """
     for r in range(DIMENSION):
         for c in range(DIMENSION):
             piece = board[r][c]
             if piece != "--":
+                # Draw the piece on the screen at the appropriate position
                 screen.blit(IMAGES[piece], p.Rect(c * SQ_SIZE + 5, r * SQ_SIZE + 5, SQ_SIZE, SQ_SIZE))
 
 def animate_move(move, screen, board, clock):
-    '''
-    This function will animate a move
-    '''
+    """
+    Animate a chess move on the screen.
+
+    Parameters:
+    - move (ChessMove): The move to animate.
+    - screen (pygame.Surface): The game screen.
+    - board (list): The 2D list representing the chessboard.
+    - clock (pygame.time.Clock): The game clock.
+
+    Returns:
+    None
+    """
     global colors
     dR = move.end_row - move.start_row
     dC = move.end_col - move.start_col
-    frames_per_square = 5 # frames to move one square
+    frames_per_square = 5  # frames to move one square
     frame_count = (abs(dR) + abs(dC)) * frames_per_square
     for frame in range(frame_count + 1):
         r, c = (move.start_row + (dR) * frame / frame_count, move.start_col + dC * frame / frame_count)
@@ -258,11 +304,18 @@ def animate_move(move, screen, board, clock):
         clock.tick(60)
 
 def draw_move_log(screen, gs):
-    '''
-    This function will draw the move log
-    '''
-    left_pannel = p.Rect(B_WIDTH +20, 0, LEFT_PANNEL_WIDTH, LEFT_PANNEL_HEIGTH + 25)
-    p.draw.rect(screen, p.Color('black'), left_pannel)
+    """
+    Draw the move log on the game screen.
+
+    Parameters:
+    - screen (pygame.Surface): The game screen.
+    - gs (GameState): The current game state.
+
+    Returns:
+    None
+    """
+    left_panel = p.Rect(B_WIDTH + 20, 0, LEFT_PANEL_WIDTH, LEFT_PANEL_HEIGTH + 25)
+    p.draw.rect(screen, p.Color('black'), left_panel)
     move_log = gs.move_log
     font = p.font.Font(None, 20)
     text_color = p.Color('white')
@@ -273,17 +326,17 @@ def draw_move_log(screen, gs):
     for i in range(0, len(move_log), 2):
         text = move_log[i].get_chess_notation()
         text_object = font.render(text, True, text_color)
-        text_location = left_pannel.move(5 + cond, text_y)
+        text_location = left_panel.move(5 + cond, text_y)
         if text_location.top > B_HEIGHT:
             if first == 0:
                 cond = 50
-                text_location = left_pannel.move(5 + cond, 5)
+                text_location = left_panel.move(5 + cond, 5)
                 text_y = 5
                 first = 1
         if text_location.top > B_HEIGHT:
             if first == 1:
                 cond = 100
-                text_location = left_pannel.move(5 + cond, 5)
+                text_location = left_panel.move(5 + cond, 5)
                 text_y = 5
                 first = 2
 
@@ -291,9 +344,16 @@ def draw_move_log(screen, gs):
         text_y += text_object.get_height()
 
 def draw_end_game(screen, text):
-    '''
-    This function will draw the end game screen
-    '''
+    """
+    Draw the end game screen with the specified text.
+
+    Parameters:
+    - screen (pygame.Surface): The game screen.
+    - text (str): The text to be displayed on the end game screen.
+
+    Returns:
+    None
+    """
     font = p.font.Font(None, 32)
     text_object = font.render(text, 0, p.Color('Gray'))
     text_location = p.Rect(0, 0, B_WIDTH, B_HEIGHT).move(B_WIDTH / 2 - text_object.get_width() / 2,
