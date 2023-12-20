@@ -2,8 +2,8 @@
 This program handles user input and displays a chess game using Pygame.
 
 Constants:
-    WIDTH (int): The width of the chessboard display window.
-    HEIGHT (int): The height of the chessboard display window.
+    B_WIDTH (int): The WIDTH of the chessboard display window.
+    B_HEIGHT (int): The height of the chessboard display window.
     DIMENSION (int): The size of the chessboard (8x8).
     SQ_SIZE (int): The size of each square on the chessboard.
     MAX_FPS (int): The maximum frames per second for the display.
@@ -24,11 +24,13 @@ import sys
 from Chess_Project.Chess import ChessEngine, RandomMove
 import pygame as p
 
-WIDTH = 512  # width of the chessboard display window
-HEIGHT = 512  # height of the chessboard display window
+B_WIDTH = 600  # width of the chessboard display window
+B_HEIGHT = 600  # height of the chessboard display window
 DIMENSION = 8  # size of the chessboard (8x8)
+LEFT_PANNEL_WIDTH = 200
+LEFT_PANNEL_HEIGTH = B_HEIGHT
 
-SQ_SIZE = HEIGHT // DIMENSION  # size of each square on the chessboard
+SQ_SIZE = B_HEIGHT // DIMENSION  # size of each square on the chessboard
 
 MAX_FPS = 15  # maximum frames per second for the display
 IMAGES = {}
@@ -41,7 +43,7 @@ def load_images():
     """
     pieces = ["wp", "wR", "wN", "wB", "wK", "wQ", "bp", "bR", "bN", "bB", "bK", "bQ"]
     for piece in pieces:
-        IMAGES[piece] = p.transform.scale(p.image.load("images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+        IMAGES[piece] = p.transform.scale(p.image.load("images/" + piece + ".png"), (SQ_SIZE-10, SQ_SIZE-10))
 
 
 def main():
@@ -51,7 +53,7 @@ def main():
     This function initializes Pygame, sets up the display window, creates a GameState object, and prints the initial chessboard state.
     """
     p.init()
-    screen = p.display.set_mode((WIDTH, HEIGHT))
+    screen = p.display.set_mode((B_WIDTH + LEFT_PANNEL_WIDTH, B_HEIGHT + 25))
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
 
@@ -68,7 +70,7 @@ def main():
 
     game_over = False
 
-    player_one = True
+    player_one = False
     player_two = False
 
     running = True
@@ -84,7 +86,7 @@ def main():
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
 
-                    if squareSelected == (row, col):  # unselect a piece
+                    if squareSelected == (row, col) or col >= 8:  # unselect a piece
                         playerClicks = [(row, col)]
                     else:
                         squareSelected = (row, col)
@@ -101,7 +103,7 @@ def main():
                                 squareSelected = (row, col)
                     if len(playerClicks) == 2:
                         move = ChessEngine.Move(playerClicks[0], playerClicks[1], game_state.board)
-                        # print(move.get_chess_notation())
+                        print(move.get_chess_notation())
                         for i in range(len(valid_moves)):
                             if move == valid_moves[i]:
                                 game_state.makeMove(valid_moves[i])
@@ -115,6 +117,7 @@ def main():
                 if not game_over and not human_turn:
                     move = RandomMove.random_move(valid_moves)
                     game_state.makeMove(move)
+                    game_state.moveLog.append(move)
                     move_made = True
                     animate = True
 
@@ -147,7 +150,6 @@ def main():
                 draw_end_game(screen, "Black wins by checkmate")
             else:
                 draw_end_game(screen, "White wins by checkmate")
-
         elif game_state.stale_mate:
             game_over = True
             draw_end_game(screen, "Stalemate")
@@ -186,6 +188,8 @@ def drawGameState(screen, gs,  squareSelected):
 
     drawNotation(screen)
 
+    draw_move_log(screen, gs)
+
 
 def drawNotation(screen):
     """
@@ -194,11 +198,16 @@ def drawNotation(screen):
     font = p.font.Font(None, 24)
     for i in range(DIMENSION):
         notation_text = font.render(str(DIMENSION - i), True, p.Color("black"))
-        screen.blit(notation_text, (WIDTH + 5, i * SQ_SIZE + 5))  # Display row notation
+        screen.blit(notation_text, (B_WIDTH + 5, i * SQ_SIZE + 25))  # Display row notation
 
     for i in range(DIMENSION):
         notation_text = font.render(chr(ord('a') + i), True, p.Color("black"))
-        screen.blit(notation_text, (WIDTH + i * SQ_SIZE + 5, HEIGHT - 25))  # Display column notation
+        screen.blit(notation_text, (25 +  i * SQ_SIZE + 5, B_HEIGHT + 5))  # Display column notation
+
+    line = p.Rect(B_WIDTH, 0, 3, B_HEIGHT)
+    p.draw.rect(screen, p.Color("black"), line)
+    line = p.Rect(0, B_HEIGHT, B_WIDTH + LEFT_PANNEL_WIDTH, 3)
+    p.draw.rect(screen, p.Color("black"), line)
 
 
 def drawBoard(screen):
@@ -206,7 +215,7 @@ def drawBoard(screen):
     This function will draw the squares on the board.
     """
     global colors
-    colors = [p.Color("white"), p.Color("grey")]
+    colors = [p.Color(227, 193, 111), p.Color(184, 139, 74)]
     for r in range(DIMENSION):
         for c in range(DIMENSION):
             color = colors[((r + c) % 2)]  # all the even squares will be white, all the odd squares will be green
@@ -221,7 +230,7 @@ def drawPieces(screen, board):
         for c in range(DIMENSION):
             piece = board[r][c]
             if piece != "--":
-                screen.blit(IMAGES[piece], p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
+                screen.blit(IMAGES[piece], p.Rect(c * SQ_SIZE + 5, r * SQ_SIZE + 5, SQ_SIZE, SQ_SIZE))
 
 def animate_move(move, screen, board, clock):
     '''
@@ -248,14 +257,47 @@ def animate_move(move, screen, board, clock):
         p.display.flip()
         clock.tick(60)
 
+def draw_move_log(screen, gs):
+    '''
+    This function will draw the move log
+    '''
+    left_pannel = p.Rect(B_WIDTH +20, 0, LEFT_PANNEL_WIDTH, LEFT_PANNEL_HEIGTH + 25)
+    p.draw.rect(screen, p.Color('black'), left_pannel)
+    move_log = gs.moveLog
+    font = p.font.Font(None, 20)
+    text_color = p.Color('white')
+    text_y = 5
+    cond = 0
+    first = 0
+
+    for i in range(0, len(move_log), 2):
+        text = move_log[i].get_chess_notation()
+        text_object = font.render(text, True, text_color)
+        text_location = left_pannel.move(5 + cond, text_y)
+        if text_location.top > B_HEIGHT:
+            if first == 0:
+                cond = 50
+                text_location = left_pannel.move(5 + cond, 5)
+                text_y = 5
+                first = 1
+        if text_location.top > B_HEIGHT:
+            if first == 1:
+                cond = 100
+                text_location = left_pannel.move(5 + cond, 5)
+                text_y = 5
+                first = 2
+
+        screen.blit(text_object, text_location)
+        text_y += text_object.get_height()
+
 def draw_end_game(screen, text):
     '''
     This function will draw the end game screen
     '''
     font = p.font.Font(None, 32)
-    text_object = font.render(text, 0, p.Color('Grey'))
-    text_location = p.Rect(0, 0, WIDTH, HEIGHT).move(WIDTH / 2 - text_object.get_width() / 2,
-                                                     HEIGHT / 2 - text_object.get_height() / 2)
+    text_object = font.render(text, 0, p.Color('Gray'))
+    text_location = p.Rect(0, 0, B_WIDTH, B_HEIGHT).move(B_WIDTH / 2 - text_object.get_width() / 2,
+                                                     B_HEIGHT / 2 - text_object.get_height() / 2)
     screen.blit(text_object, text_location)
     text_object = font.render(text, 0, p.Color('Black'))
     screen.blit(text_object, text_location.move(2, 2))
