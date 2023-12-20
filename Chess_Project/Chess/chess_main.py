@@ -13,6 +13,31 @@ Functions:
     load_images():
         Initializes a global dictionary of images for chess pieces.
 
+    Button:
+        A class representing a clickable button.
+
+        Methods:
+            __init__(self, text, x, y, width, height, color, hover_color, action):
+                Initializes a Button instance.
+
+            draw(self, screen, font):
+                Draws the button on the screen.
+
+            check_click(self, event):
+                Checks if the button is clicked and performs the associated action.
+
+    quit_game():
+        Quits the game and exits the program.
+
+    start_game():
+        Sets the game state to "game" and exits the menu.
+
+    set_player_one():
+        Sets the player_one variable to True.
+
+    set_player_two():
+        Sets the player_two variable to True.
+
     main():
         The main function that initializes Pygame, sets up the display window,
         and handles user input and graphics updates.
@@ -32,8 +57,126 @@ LEFT_PANEL_HEIGTH = B_HEIGHT
 
 SQ_SIZE = B_HEIGHT // DIMENSION  # size of each square on the chessboard
 
-MAX_FPS = 15  # maximum frames per second for the display
+MAX_FPS = 60  # maximum frames per second for the display
 IMAGES = {}
+
+WHITE = (162,213,198)
+BLACK = (0, 0, 0)
+GRAY = (200, 200, 200)
+
+BUTTON_WIDTH, BUTTON_HEIGHT = 200, 50
+BUTTON_MARGIN = 20
+FONT_SIZE = 36
+
+player_one = False
+player_two = False
+
+game_state = "menu"
+running = False
+class Button:
+    def __init__(self, text, x, y, width, height, color, hover_color, action):
+        """
+            Initializes a Button instance.
+
+            Args:
+                text (str): The text displayed on the button.
+                x (int): The x-coordinate of the button.
+                y (int): The y-coordinate of the button.
+                width (int): The width of the button.
+                height (int): The height of the button.
+                color (tuple): The color of the button.
+                hover_color (tuple): The color of the button when hovered.
+                action (function): The function to be executed when the button is clicked.
+            """
+        self.rect = p.Rect(x, y, width, height)
+        self.color = color
+        self.hover_color = hover_color
+        self.text = text
+        self.action = action
+
+    def draw(self, screen, font):
+        """
+            Draws the button on the screen.
+
+            Args:
+                screen (pygame.Surface): The game screen.
+                font (pygame.font.Font): The font used for the button text.
+
+            Returns:
+                None
+        """
+        p.draw.rect(screen, self.hover_color if self.rect.collidepoint(p.mouse.get_pos()) else self.color, self.rect)
+        text_surface = font.render(self.text, True, BLACK)
+        text_rect = text_surface.get_rect(center=self.rect.center)
+        screen.blit(text_surface, text_rect)
+
+    def check_click(self, event):
+        """
+        Checks if the button is clicked and performs
+        the associated action.
+
+        Args:
+            event(pygame.event.Event): The pygame event.
+
+        Returns:
+            None
+        """
+        if event.type == p.MOUSEBUTTONDOWN and event.button == 1:
+            if self.rect.collidepoint(event.pos):
+                self.action()
+
+def quit_game():
+    """
+        Quits the game and exits the program.
+
+        Returns:
+            None
+    """
+    p.quit()
+    sys.exit()
+
+def start_game():
+    """
+        Sets the game state to "game" and exits the menu.
+
+        Returns:
+            None
+    """
+    global game_state, running
+    print("Starting game...")
+    game_state = "game"
+    print("Game started")
+    running = False
+
+def set_player_one():
+    """
+        Sets the player_one variable to True.
+
+        Returns:
+            None
+    """
+    global player_one
+    player_one = True
+    print("Player One selected")
+
+def set_player_two():
+    """
+       Sets the player_two variable to True.
+
+       Returns:
+           None
+    """
+    global player_two
+    player_two = True
+    print("Player Two selected")
+
+
+player_one_button = Button("White - Person", B_WIDTH // 2 - BUTTON_WIDTH // 2, B_HEIGHT // 2 - BUTTON_HEIGHT - BUTTON_MARGIN, BUTTON_WIDTH, BUTTON_HEIGHT, p.Color(7,123,138), p.Color(92,60,146), set_player_one)
+player_two_button = Button("Black - Person", B_WIDTH // 2 - BUTTON_WIDTH // 2, B_HEIGHT // 2, BUTTON_WIDTH, BUTTON_HEIGHT, p.Color(7,123,138), p.Color(92,60,146), set_player_two)
+play_button = Button("Play", B_WIDTH // 2 - BUTTON_WIDTH // 2, B_HEIGHT // 2 + BUTTON_HEIGHT + BUTTON_MARGIN, BUTTON_WIDTH, BUTTON_HEIGHT, p.Color(7,123,138), p.Color(92,60,146), start_game)
+quit_button = Button("Quit", B_WIDTH // 2 - BUTTON_WIDTH // 2, B_HEIGHT // 2 + 3 * (BUTTON_HEIGHT + BUTTON_MARGIN), BUTTON_WIDTH, BUTTON_HEIGHT, p.Color(215,38,49), p.Color(92,60,146), quit_game)
+
+buttons = [player_one_button, player_two_button, play_button, quit_button]
 
 
 def load_images():
@@ -50,9 +193,39 @@ def main():
     """
     The main function that initializes Pygame, sets up the display window, and handles user input and graphics updates.
 
-    This function initializes Pygame, sets up the display window, creates a GameState object, and prints the initial chessboard state.
+    This function initializes Pygame, sets up the display window, creates a GameState object, and prints the initial
+    chessboard state.
     """
+    global game_state, running
     p.init()
+    screen = p.display.set_mode((B_WIDTH, B_HEIGHT))
+    p.display.set_caption("Chess")
+    clock = p.time.Clock()
+
+    game_state= "menu"
+
+    running = True
+    while running:
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                running = False
+
+            for button in buttons:
+                button.check_click(event)
+
+        screen.fill(WHITE)
+
+        if game_state == "menu":
+            for button in buttons:
+                button.draw(screen, p.font.Font(None, FONT_SIZE))
+        elif game_state == "game":
+            # Transition to game
+            print("Transitioning to game state...")
+            running = False
+
+        p.display.flip()
+        clock.tick(MAX_FPS)
+
     screen = p.display.set_mode((B_WIDTH + LEFT_PANEL_WIDTH, B_HEIGHT + 25))
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
@@ -69,9 +242,6 @@ def main():
     player_clicks = []  # keeps track of player_clicks  (example [(6,1), (4, 1)] )
 
     game_over = False
-
-    player_one = True
-    player_two = False
 
     running = True
     while running:
