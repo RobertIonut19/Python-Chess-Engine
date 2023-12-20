@@ -21,7 +21,7 @@ Usage:
     - Run this script to start the chess game.
 """
 import sys
-from Chess_Project.Chess import ChessEngine, RandomMove
+from Chess_Project.Chess import chess_engine, random_move
 import pygame as p
 
 B_WIDTH = 600  # width of the chessboard display window
@@ -57,16 +57,16 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
 
-    game_state = ChessEngine.GameState()
-    valid_moves = game_state.getValidMoves()
+    game_state = chess_engine.GameState()
+    valid_moves = game_state.get_valid_moves()
     move_made = False  # flag variable for when a move is made
     load_images()
 
     animate = False
 
-    squareSelected = ()  # a tuple to store the coordinates of pieces selected
+    square_selected = ()  # a tuple to store the coordinates of pieces selected
     # keeps track of the last click on the table (row ,col)
-    playerClicks = []  # keeps track of playerClicks  (example [(6,1), (4, 1)] )
+    player_clicks = []  # keeps track of player_clicks  (example [(6,1), (4, 1)] )
 
     game_over = False
 
@@ -75,7 +75,7 @@ def main():
 
     running = True
     while running:
-        human_turn = (game_state.whiteToMove and player_one) or (not game_state.whiteToMove and player_two)
+        human_turn = (game_state.white_to_move and player_one) or (not game_state.white_to_move and player_two)
         for event in p.event.get():
             if event.type == p.QUIT:
                 running = False
@@ -86,38 +86,38 @@ def main():
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
 
-                    if squareSelected == (row, col) or col >= 8:  # unselect a piece
-                        playerClicks = [(row, col)]
+                    if square_selected == (row, col) or col >= 8:  # unselect a piece
+                        player_clicks = [(row, col)]
                     else:
-                        squareSelected = (row, col)
-                        playerClicks.append(squareSelected)  # it will store both clicks
-                        if (len(playerClicks) == 0):
-                            if (game_state.whiteToMove and game_state.board[row][col][0] != 'w') or (
-                                    not game_state.whiteToMove and game_state.board[row][col][0] != 'b'):
-                                playerClicks = []
-                                squareSelected = ()
-                        elif (len(playerClicks) == 2):
-                            if (game_state.whiteToMove and game_state.board[row][col][0] == 'w') or (
-                                    not game_state.whiteToMove and game_state.board[row][col][0] == 'b'):
-                                playerClicks = [(row, col)]
-                                squareSelected = (row, col)
-                    if len(playerClicks) == 2:
-                        move = ChessEngine.Move(playerClicks[0], playerClicks[1], game_state.board)
+                        square_selected = (row, col)
+                        player_clicks.append(square_selected)  # it will store both clicks
+                        if (len(player_clicks) == 0):
+                            if (game_state.white_to_move and game_state.board[row][col][0] != 'w') or (
+                                    not game_state.white_to_move and game_state.board[row][col][0] != 'b'):
+                                player_clicks = []
+                                square_selected = ()
+                        elif (len(player_clicks) == 2):
+                            if (game_state.white_to_move and game_state.board[row][col][0] == 'w') or (
+                                    not game_state.white_to_move and game_state.board[row][col][0] == 'b'):
+                                player_clicks = [(row, col)]
+                                square_selected = (row, col)
+                    if len(player_clicks) == 2:
+                        move = chess_engine.Move(player_clicks[0], player_clicks[1], game_state.board)
                         print(move.get_chess_notation())
                         for i in range(len(valid_moves)):
                             if move == valid_moves[i]:
-                                game_state.makeMove(valid_moves[i])
+                                game_state.make_move(valid_moves[i])
                                 move_made = True
                                 animate = True
-                                squareSelected = ()  # reset the user clicks
-                                playerClicks = []
+                                square_selected = ()  # reset the user clicks
+                                player_clicks = []
                         if not move_made:
-                            playerClicks = [squareSelected]
+                            player_clicks = [square_selected]
 
                 if not game_over and not human_turn:
-                    move = RandomMove.random_move(valid_moves)
-                    game_state.makeMove(move)
-                    game_state.moveLog.append(move)
+                    move = random_move.random_move(valid_moves)
+                    game_state.make_move(move)
+                    game_state.move_log.append(move)
                     move_made = True
                     animate = True
 
@@ -125,28 +125,28 @@ def main():
             elif event.type == p.KEYDOWN:
 
                 if event.key == p.K_z:  # undo when 'z' is pressed
-                    game_state.undoMove()
+                    game_state.undo_move()
                     move_made = True
                     animate = False
                 if event.key == p.K_r:  # reset the board when 'r' is pressed
-                    game_state = ChessEngine.GameState()
-                    valid_moves = game_state.getValidMoves()
-                    squareSelected = ()
-                    playerClicks = []
+                    game_state = chess_engine.GameState()
+                    valid_moves = game_state.get_valid_moves()
+                    square_selected = ()
+                    player_clicks = []
                     move_made = False
                     animate = False
 
 
         if move_made:
             if animate:
-                animate_move(game_state.moveLog[-1], screen, game_state.board, clock)
-            valid_moves = game_state.getValidMoves()
+                animate_move(game_state.move_log[-1], screen, game_state.board, clock)
+            valid_moves = game_state.get_valid_moves()
             move_made = False
             animate = False
 
         if game_state.check_mate:
             game_over = True
-            if game_state.whiteToMove:
+            if game_state.white_to_move:
                 draw_end_game(screen, "Black wins by checkmate")
             else:
                 draw_end_game(screen, "White wins by checkmate")
@@ -156,15 +156,15 @@ def main():
 
         clock.tick(MAX_FPS)
         p.display.flip()
-        drawGameState(screen, game_state, squareSelected)
+        draw_game_state(screen, game_state, square_selected)
 
-def highlight_squares(screen, game_state, valid_moves, squareSelected):
+def highlight_squares(screen, game_state, valid_moves, square_selected):
     '''
     Highlight square selected and moves for piece selected
     '''
-    if squareSelected != ():
-        r, c = squareSelected
-        if game_state.board[r][c][0] == ('w' if game_state.whiteToMove else 'b'):  # square selected is a piece that can be moved
+    if square_selected != ():
+        r, c = square_selected
+        if game_state.board[r][c][0] == ('w' if game_state.white_to_move else 'b'):  # square selected is a piece that can be moved
             # highlight selected square
             s = p.Surface((SQ_SIZE, SQ_SIZE))
             s.set_alpha(100)  # transparency value -> 0 transparent; 255 opaque
@@ -176,13 +176,13 @@ def highlight_squares(screen, game_state, valid_moves, squareSelected):
                 if move.start_row == r and move.start_col == c:
                     screen.blit(s, (move.end_col * SQ_SIZE, move.end_row * SQ_SIZE))
 
-def drawGameState(screen, gs,  squareSelected):
+def draw_game_state(screen, gs,  square_selected):
     """
     This function will be responsible for all the graphics within a current game state.
     """
     drawBoard(screen)  # draw squares on the board
 
-    highlight_squares(screen, gs, gs.getValidMoves(), squareSelected)
+    highlight_squares(screen, gs, gs.get_valid_moves(), square_selected)
 
     drawPieces(screen, gs.board)  # draw pieces on top of those squares
 
@@ -263,7 +263,7 @@ def draw_move_log(screen, gs):
     '''
     left_pannel = p.Rect(B_WIDTH +20, 0, LEFT_PANNEL_WIDTH, LEFT_PANNEL_HEIGTH + 25)
     p.draw.rect(screen, p.Color('black'), left_pannel)
-    move_log = gs.moveLog
+    move_log = gs.move_log
     font = p.font.Font(None, 20)
     text_color = p.Color('white')
     text_y = 5
