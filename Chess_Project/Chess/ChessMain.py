@@ -21,7 +21,7 @@ Usage:
     - Run this script to start the chess game.
 """
 import sys
-from Chess_Project.Chess import ChessEngine
+from Chess_Project.Chess import ChessEngine, RandomMove
 import pygame as p
 
 WIDTH = 512  # width of the chessboard display window
@@ -66,19 +66,20 @@ def main():
     # keeps track of the last click on the table (row ,col)
     playerClicks = []  # keeps track of playerClicks  (example [(6,1), (4, 1)] )
 
-    font = p.font.Font(None, 36)
-    turn_text = font.render("Turn: White", True, p.Color("black"))
-
     game_over = False
+
+    player_one = True
+    player_two = False
 
     running = True
     while running:
+        human_turn = (game_state.whiteToMove and player_one) or (not game_state.whiteToMove and player_two)
         for event in p.event.get():
             if event.type == p.QUIT:
                 running = False
             # mouse handler
             elif event.type == p.MOUSEBUTTONDOWN:
-                if not game_over:
+                if not game_over and human_turn:
                     location = p.mouse.get_pos()  # (location[0] // SQ_SIZE, location[1] // SQ_SIZE)
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
@@ -110,6 +111,13 @@ def main():
                                 playerClicks = []
                         if not move_made:
                             playerClicks = [squareSelected]
+
+                if not game_over and not human_turn:
+                    move = RandomMove.random_move(valid_moves)
+                    game_state.makeMove(move)
+                    move_made = True
+                    animate = True
+
             # key handler
             elif event.type == p.KEYDOWN:
 
@@ -139,6 +147,10 @@ def main():
                 draw_end_game(screen, "Black wins by checkmate")
             else:
                 draw_end_game(screen, "White wins by checkmate")
+
+        elif game_state.stale_mate:
+            game_over = True
+            draw_end_game(screen, "Stalemate")
 
         clock.tick(MAX_FPS)
         p.display.flip()

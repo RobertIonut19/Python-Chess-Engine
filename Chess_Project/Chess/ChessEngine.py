@@ -154,10 +154,6 @@ class GameState():
         All moves considering checks
         '''
 
-        for log in self.castleRightsLog:
-            print(log.wks, log.wqs, log.bks, log.bqs)
-        print()
-
         temp_en_passant_possible = self.en_passant_possible
         temp_castle_rights = Castle_rights(self.currentCastlingRights.wks, self.currentCastlingRights.bks,
                                             self.currentCastlingRights.wqs, self.currentCastlingRights.bqs)
