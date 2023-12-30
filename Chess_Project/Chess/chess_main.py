@@ -56,8 +56,8 @@ BUTTON_WIDTH, BUTTON_HEIGHT = 200, 50
 BUTTON_MARGIN = 20
 FONT_SIZE = 36
 
-player_one = False
-player_two = False
+player_one = True
+player_two = True
 
 game_state = "menu"
 running = False
@@ -93,7 +93,7 @@ def set_player_one():
             None
     """
     global player_one
-    player_one = True
+    player_one = not player_one
     print("Player One selected")
 
 def set_player_two():
@@ -104,14 +104,24 @@ def set_player_two():
            None
     """
     global player_two
-    player_two = True
+    player_two = not player_two
     print("Player Two selected")
 
+ai_white = p.image.load("images/ai_white.png")
+ai_white = p.transform.scale(ai_white, (BUTTON_WIDTH, BUTTON_HEIGHT))
+ai_black = p.image.load("images/ai_black.png")
+ai_black = p.transform.scale(ai_black, (BUTTON_WIDTH, BUTTON_HEIGHT))
+play_button = p.image.load("images/play_button.png")
+play_button = p.transform.scale(play_button, (BUTTON_WIDTH, BUTTON_HEIGHT))
+quit_button = p.image.load("images/quit_button.png")
+quit_button = p.transform.scale(quit_button, (BUTTON_WIDTH, BUTTON_HEIGHT))
+menu_background = p.image.load("images/menu.png")
+menu_background = p.transform.scale(menu_background, (B_WIDTH, B_HEIGHT))
 
-player_one_button = b.Button("White", B_WIDTH // 2 - BUTTON_WIDTH // 2, B_HEIGHT // 2 - BUTTON_HEIGHT - BUTTON_MARGIN, BUTTON_WIDTH, BUTTON_HEIGHT, p.Color(7,123,138), p.Color(92,60,146), set_player_one)
-player_two_button = b.Button("Black", B_WIDTH // 2 - BUTTON_WIDTH // 2, B_HEIGHT // 2, BUTTON_WIDTH, BUTTON_HEIGHT, p.Color(7,123,138), p.Color(92,60,146), set_player_two)
-play_button = b.Button("Play", B_WIDTH // 2 - BUTTON_WIDTH // 2, B_HEIGHT // 2 + BUTTON_HEIGHT + BUTTON_MARGIN, BUTTON_WIDTH, BUTTON_HEIGHT, p.Color(7,123,138), p.Color(92,60,146), start_game)
-quit_button = b.Button("Quit", B_WIDTH // 2 - BUTTON_WIDTH // 2, B_HEIGHT // 2 + 3 * (BUTTON_HEIGHT + BUTTON_MARGIN), BUTTON_WIDTH, BUTTON_HEIGHT, p.Color(215,38,49), p.Color(92,60,146), quit_game)
+player_one_button = b.Button(B_WIDTH // 2 - BUTTON_WIDTH // 2, B_HEIGHT // 2 - 35 - BUTTON_HEIGHT - BUTTON_MARGIN, ai_white, set_player_one)
+player_two_button = b.Button(B_WIDTH // 2 - BUTTON_WIDTH // 2, B_HEIGHT // 2 - 35, ai_black, set_player_two)
+play_button = b.Button(B_WIDTH // 2 - BUTTON_WIDTH // 2, B_HEIGHT // 2 - 35 + BUTTON_HEIGHT + BUTTON_MARGIN, play_button, start_game)
+quit_button = b.Button(B_WIDTH // 2 - BUTTON_WIDTH // 2, B_HEIGHT // 2 + 3 * (BUTTON_HEIGHT + BUTTON_MARGIN), quit_button, quit_game)
 
 buttons = [player_one_button, player_two_button, play_button, quit_button]
 
@@ -146,11 +156,14 @@ def main():
         for event in p.event.get():
             if event.type == p.QUIT:
                 running = False
+                p.quit()
+                sys.exit()
 
             for button in buttons:
                 button.check_click(event)
 
-        screen.fill(WHITE)
+        # Draw menu - background image
+        screen.blit(menu_background, (0, 0))
 
         if game_state == "menu":
             for button in buttons:

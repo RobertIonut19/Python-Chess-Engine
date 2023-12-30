@@ -19,26 +19,26 @@ WHITE = (162,213,198)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
 
+BUTTON_WIDTH, BUTTON_HEIGHT = 200, 50
+BUTTON_MARGIN = 20
+
 class Button:
-    def __init__(self, text, x, y, width, height, color, hover_color, action):
+    def __init__(self, x, y, image, action):
         """
             Initializes a Button instance.
 
             Args:
-                text (str): The text displayed on the button.
+                image (pygame.Surface): The image of the button.
                 x (int): The x-coordinate of the button.
                 y (int): The y-coordinate of the button.
-                width (int): The width of the button.
-                height (int): The height of the button.
-                color (tuple): The color of the button.
-                hover_color (tuple): The color of the button when hovered.
                 action (function): The function to be executed when the button is clicked.
             """
-        self.rect = p.Rect(x, y, width, height)
-        self.color = color
-        self.hover_color = hover_color
-        self.text = text
         self.action = action
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.is_clicked = False
 
     def draw(self, screen, font):
         """
@@ -51,10 +51,12 @@ class Button:
             Returns:
                 None
         """
-        p.draw.rect(screen, self.hover_color if self.rect.collidepoint(p.mouse.get_pos()) else self.color, self.rect)
-        text_surface = font.render(self.text, True, BLACK)
-        text_rect = text_surface.get_rect(center=self.rect.center)
-        screen.blit(text_surface, text_rect)
+        scaled_image = p.transform.scale(self.image, (BUTTON_WIDTH, BUTTON_HEIGHT))
+
+        x_offset = (BUTTON_WIDTH - scaled_image.get_width()) // 2
+        y_offset = (BUTTON_HEIGHT - scaled_image.get_height()) // 2
+
+        screen.blit(self.image, (self.rect.x + x_offset, self.rect.y + y_offset))
 
     def check_click(self, event):
         """
