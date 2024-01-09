@@ -1,25 +1,6 @@
-"""
-Button class for the Chess game:
-        A class representing a clickable button.
 
-        Methods:
-            __init__(self, text, x, y, width, height, color, hover_color, action):
-                Initializes a Button instance.
-
-            draw(self, screen, font):
-                Draws the button on the screen.
-
-            check_click(self, event):
-                Checks if the button is clicked and performs the associated action.
-"""
 
 import pygame as p
-import numpy as np
-import sys
-
-WHITE = (162,213,198)
-BLACK = (0, 0, 0)
-GRAY = (200, 200, 200)
 
 BUTTON_WIDTH, BUTTON_HEIGHT = 200, 50
 BUTTON_MARGIN = 20
@@ -30,7 +11,22 @@ B_HEIGHT = 600  # height of the chessboard display window
 MENU_IMAGES = []
 BUTTONS = []
 
+
 class Button:
+    """
+    Button class for the Chess game:
+            A class representing a clickable button.
+
+            Methods:
+                __init__(self, text, x, y, width, height, color, hover_color, action):
+                    Initializes a Button instance.
+
+                draw(self, screen, font):
+                    Draws the button on the screen.
+
+                check_click(self, event):
+                    Checks if the button is clicked and performs the associated action.
+    """
     def __init__(self, screen, x, y, image, action):
         """
             Initializes a Button instance.
@@ -51,13 +47,12 @@ class Button:
         self.hovered = False
         self.i = 0
 
-    def draw(self, screen, font):
+    def draw(self, screen):
         """
             Draws the button on the screen.
 
             Args:
                 screen (pygame.Surface): The game screen.
-                font (pygame.font.Font): The font used for the button text.
 
             Returns:
                 None
@@ -95,10 +90,8 @@ class Button:
                     if MENU_IMAGES[self.i] == self.image:
                         self.image = MENU_IMAGES[self.i + 5]
                         self.hovered = True
-                        print("hover")
                         break
             else:
-                print(self.i, self.hovered)
                 for self.i in range(10):
                     if MENU_IMAGES[self.i] == self.image and self.hovered == True:
                         self.image = MENU_IMAGES[self.i - 5]
@@ -107,10 +100,16 @@ class Button:
                         else:
                             self.image.set_alpha(255)
                         self.hovered = False
-                        print("not hover")
                         break
 
+
 def load_images():
+    """
+        Load images for the Chess game menu.
+
+        Returns:
+            None
+    """
     # Menu
     global MENU_IMAGES
     ai_white = p.transform.scale(p.image.load("view/images/menu/ai_white.png"), (BUTTON_WIDTH, BUTTON_HEIGHT))
@@ -121,17 +120,22 @@ def load_images():
                                     (BUTTON_WIDTH, BUTTON_HEIGHT))
     menu_background = p.transform.scale(p.image.load("view/images/menu/menu.png"), (B_WIDTH, B_HEIGHT))
 
-    MENU_IMAGES.append(ai_white); MENU_IMAGES.append(ai_black)
-    MENU_IMAGES.append(play_button); MENU_IMAGES.append(quit_button)
+    MENU_IMAGES.append(ai_white)
+    MENU_IMAGES.append(ai_black)
+    MENU_IMAGES.append(play_button)
+    MENU_IMAGES.append(quit_button)
     MENU_IMAGES.append(menu_background)
 
-    ai_white_hover = p.transform.scale(p.image.load("view/images/menu/ai_white_hover.png"), (BUTTON_WIDTH, BUTTON_HEIGHT))
-    ai_black_hover = p.transform.scale(p.image.load("view/images/menu/ai_black_hover.png"), (BUTTON_WIDTH, BUTTON_HEIGHT))
+    ai_white_hover = p.transform.scale(p.image.load("view/images/menu/ai_white_hover.png"),
+                                       (BUTTON_WIDTH, BUTTON_HEIGHT))
+    ai_black_hover = p.transform.scale(p.image.load("view/images/menu/ai_black_hover.png"),
+                                       (BUTTON_WIDTH, BUTTON_HEIGHT))
     play_button_hover = p.transform.scale(p.image.load("view/images/menu/play_hover.png"),
-                                    (BUTTON_WIDTH, BUTTON_HEIGHT))
+                                          (BUTTON_WIDTH, BUTTON_HEIGHT))
     quit_button_hover = p.transform.scale(p.image.load("view/images/menu/quit_hover.png"),
-                                    (BUTTON_WIDTH, BUTTON_HEIGHT))
+                                          (BUTTON_WIDTH, BUTTON_HEIGHT))
 
-    MENU_IMAGES.append(ai_white_hover); MENU_IMAGES.append(ai_black_hover)
-    MENU_IMAGES.append(play_button_hover); MENU_IMAGES.append(quit_button_hover)
-
+    MENU_IMAGES.append(ai_white_hover)
+    MENU_IMAGES.append(ai_black_hover)
+    MENU_IMAGES.append(play_button_hover)
+    MENU_IMAGES.append(quit_button_hover)

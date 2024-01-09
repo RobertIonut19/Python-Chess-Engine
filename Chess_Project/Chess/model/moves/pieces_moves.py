@@ -2,11 +2,13 @@ from Chess_Project.Chess.model.moves.move_class import Move
 from Chess_Project.Chess.model.game_state_class import GameState
 import random
 
-def get_pawn_moves(game_state : GameState, r, c, moves):
+
+def get_pawn_moves(game_state: GameState, r, c, moves):
     """
        Get all possible moves for a pawn at the given position (r, c).
 
         Args:
+            game_state (GameState): The current game state.
             r (int): Row of the pawn.
             c (int): Column of the pawn.
             moves (list): List to store the generated moves.
@@ -39,18 +41,21 @@ def get_pawn_moves(game_state : GameState, r, c, moves):
         if c - 1 >= 0:
             if game_state.board[r + 1][c - 1][0] == 'w':
                 moves.append(Move((r, c), (r + 1, c - 1), game_state.board))
-            elif ((r + 1, c - 1) == game_state.en_passant_possible):
+            elif (r + 1, c - 1) == game_state.en_passant_possible:
                 moves.append(Move((r, c), (r + 1, c - 1), game_state.board, enpassant_possible=True))
         if c + 1 <= 7:
             if game_state.board[r + 1][c + 1][0] == 'w':
                 moves.append(Move((r, c), (r + 1, c + 1), game_state.board))
             elif (r + 1, c + 1) == game_state.en_passant_possible:
                 moves.append(Move((r, c), (r + 1, c + 1), game_state.board, enpassant_possible=True))
+
+
 def get_rook_moves(game_state, r, c, moves):
     """
         Get all possible moves for a rook at the given position (r, c).
 
         Args:
+            game_state (GameState): The current game state.
             r (int): Row of the rook.
             c (int): Column of the rook.
             moves (list): List to store the generated moves.
@@ -125,11 +130,13 @@ def get_rook_moves(game_state, r, c, moves):
             else:
                 break
 
+
 def get_knight_moves(game_state, r, c, moves):
     """
         Get all possible moves for a knight at the given position (r, c).
 
         Args:
+            game_state (GameState): The current game state.
             r (int): Row of the knight.
             c (int): Column of the knight.
             moves (list): List to store the generated moves.
@@ -221,11 +228,13 @@ def get_knight_moves(game_state, r, c, moves):
             elif game_state.board[r+2][c+1][0] == 'w':
                 moves.append(Move((r, c), (r+2, c+1), game_state.board))
 
+
 def get_bishop_moves(game_state, r, c, moves):
     """
         Get all possible moves for a bishop at the given position (r, c).
 
         Args:
+            game_state (GameState): The current game state.
             r (int): Row of the bishop.
             c (int): Column of the bishop.
             moves (list): List to store the generated moves.
@@ -309,11 +318,13 @@ def get_bishop_moves(game_state, r, c, moves):
                 else:
                     break
 
+
 def get_queen_moves(game_state, r, c, moves):
     """
     Get all possible moves for a queen at the given position (r, c).
 
     Args:
+        game_state (GameState): The current game state.
         r (int): Row of the queen.
         c (int): Column of the queen.
         moves (list): List to store the generated moves.
@@ -325,11 +336,13 @@ def get_queen_moves(game_state, r, c, moves):
     game_state.get_rook_moves(r, c, moves)
     game_state.get_bishop_moves(r, c, moves)
 
+
 def get_king_moves(game_state, r, c, moves):
     """
         Get all possible moves for a king at the given position (r, c).
 
         Args:
+            game_state (GameState): The current game state.
             r (int): Row of the king.
             c (int): Column of the king.
             moves (list): List to store the generated moves.
@@ -420,6 +433,7 @@ def get_king_moves(game_state, r, c, moves):
                 moves.append(Move((r, c), (r+1, c+1), game_state.board))
             elif game_state.board[r+1][c+1][0] == 'w':
                 moves.append(Move((r, c), (r+1, c+1), game_state.board))
+
 
 def random_move(valid_moves):
     return valid_moves[random.randint(0, len(valid_moves) - 1)]

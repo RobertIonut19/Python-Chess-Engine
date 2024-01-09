@@ -1,8 +1,47 @@
-from Chess_Project.Chess.model.moves.castle_moves import Castle_rights
+from Chess_Project.Chess.model.moves.castle_moves import CastleRights
 from Chess_Project.Chess.model.moves.move_class import Move
 import copy as c
 import random
-class GameState():
+
+
+class GameState:
+    """
+    Represents the state of a chess game, including the current board configuration, player turns,
+    and game-specific attributes such as castling rights, en passant possibilities, and check/mate conditions.
+
+    Attributes:
+        - board (list): A 2D list representing the current chessboard configuration.
+        - move_functions (dict): A dictionary mapping piece types to their respective move generation functions.
+        - white_to_move (bool): True if it's currently white's turn, False if black's turn.
+        - move_log (list): A list to store the history of moves made during the game.
+        - white_king_location (tuple): The current location of the white king on the board.
+        - black_king_location (tuple): The current location of the black king on the board.
+        - check_mate (bool): True if the current player is in checkmate, False otherwise.
+        - stale_mate (bool): True if the game is in a stalemate position, False otherwise.
+        - en_passant_possible (tuple): Coordinates for the square where en passant capture is possible.
+        - current_castling_rights (CastleRights): An instance of the CastleRights class representing current castling rights.
+        - CastleRights_log (list): A list to store the history of castling rights during the game.
+
+    Methods:
+        - make_move(move): Executes the given chess move on the board, updating the game state.
+        - undo_move(): Undoes the last move made in the chess game, reverting the board to its previous state.
+        - get_all_possible_moves(): Generates all possible moves for the current player without considering checks.
+        - get_valid_moves(): Generates all valid moves considering checks, checkmate, and stalemate conditions.
+        - in_check(): Checks if the current player is in check.
+        - square_under_attack(r, col): Determines if the square at position (r, col) is under attack by the opponent.
+        - update_castle_rights(move): Updates castle rights based on the given move.
+        - get_castle_moves(r, col, moves): Generates castle moves for the king at the specified position (r, col).
+        - get_king_side_castle_moves(r, c, moves): Generates king-side castle moves for the king at the specified position.
+        - get_queen_side_castle_moves(r, c, moves): Generates queen-side castle moves for the king at the specified position.
+        - get_pawn_moves(r, c, moves): Generates all possible moves for a pawn at the given position (r, c).
+        - get_rook_moves(r, c, moves): Generates all possible moves for a rook at the given position (r, c).
+        - get_knight_moves(r, c, moves): Generates all possible moves for a knight at the given position (r, c).
+        - get_bishop_moves(r, c, moves): Generates all possible moves for a bishop at the given position (r, c).
+        - get_queen_moves(r, c, moves): Generates all possible moves for a queen at the given position (r, c).
+        - get_king_moves(r, c, moves): Generates all possible moves for a king at the given position (r, c).
+        - random_move(valid_moves): Generates a random move from the list of valid moves.
+
+    """
     def __init__(self):
         """
             Initialize the game state.
@@ -28,9 +67,9 @@ class GameState():
         self.stale_mate = False
         self.en_passant_possible = ()  # coordinates for the square where en-passant capture is possible
 
-        self.current_castling_rights = Castle_rights(True, True, True, True)
-        self.castle_rights_log = [Castle_rights(self.current_castling_rights.wks, self.current_castling_rights.bks,
-                                                self.current_castling_rights.wqs, self.current_castling_rights.bqs)]
+        self.current_castling_rights = CastleRights(True, True, True, True)
+        self.CastleRights_log = [CastleRights(self.current_castling_rights.wks, self.current_castling_rights.bks,
+                                              self.current_castling_rights.wqs, self.current_castling_rights.bqs)]
 
     def make_move(self, move):
         """
@@ -79,8 +118,8 @@ class GameState():
         """
         self.board[move.start_row][move.start_col] = "--"
         self.board[move.end_row][move.end_col] = move.piece_moved
-        self.move_log.append(move) #for undo / history of the game
-        self.white_to_move = not self.white_to_move #swap players
+        self.move_log.append(move)  # for undo / history of the game
+        self.white_to_move = not self.white_to_move  # swap players
 
         if move.piece_moved == 'wK':
             self.white_king_location = (move.end_row, move.end_col)
@@ -88,7 +127,7 @@ class GameState():
             self.black_king_location = (move.end_row, move.end_col)
 
         if move.is_pawn_promotion:
-            self.board[move.end_row][move.end_col] = move.piece_moved[0] + 'Q' #iau culoarea si pun o regina la moment
+            self.board[move.end_row][move.end_col] = move.piece_moved[0] + 'Q'  # iau culoarea si pun o regina la moment
 
         if move.is_en_passant_move:
             self.board[move.start_row][move.end_col] = "--"
@@ -107,8 +146,8 @@ class GameState():
                 self.board[move.end_row][move.end_col-2] = "--"
 
         self.update_castle_rights(move)
-        self.castle_rights_log.append(Castle_rights(self.current_castling_rights.wks, self.current_castling_rights.bks,
-                                                    self.current_castling_rights.wqs, self.current_castling_rights.bqs))
+        self.CastleRights_log.append(CastleRights(self.current_castling_rights.wks, self.current_castling_rights.bks,
+                                                  self.current_castling_rights.wqs, self.current_castling_rights.bqs))
 
     def undo_move(self):
         """
@@ -144,8 +183,8 @@ class GameState():
             if move.piece_moved[1] == 'p' and abs(move.start_row - move.end_row) == 2:
                 self.en_passant_possible = ()
 
-            self.castle_rights_log.pop()  # remove the last castle rights from the log
-            new_rights = c.deepcopy(self.castle_rights_log[-1])
+            self.CastleRights_log.pop()  # remove the last castle rights from the log
+            new_rights = c.deepcopy(self.CastleRights_log[-1])
             self.current_castling_rights = new_rights
 
             if move.is_castle_move:
@@ -168,13 +207,13 @@ class GameState():
             and type of the piece on each square, and calls the corresponding move function.
         """
         moves = []
-        for r in range(len(self.board)):
-            for c in range(len(self.board[r])):
-                turn = self.board[r][c][0]  # get the color of the piece - w or b
+        for row in range(len(self.board)):
+            for col in range(len(self.board[row])):
+                turn = self.board[row][col][0]  # get the color of the piece - w or b
                 if (turn == 'w' and self.white_to_move) or (
-                        turn == 'b' and not self.white_to_move):  # verifica later on
-                    piece = self.board[r][c][1]
-                    self.move_functions[piece](r, c, moves)  # call the appropriate move function based on piece type
+                        turn == 'b' and not self.white_to_move):
+                    piece = self.board[row][col][1]
+                    self.move_functions[piece](row, col, moves)  # call the right move function based on piece type
         return moves
 
     def get_valid_moves(self):
@@ -189,8 +228,8 @@ class GameState():
         """
 
         temp_en_passant_possible = self.en_passant_possible
-        temp_castle_rights = Castle_rights(self.current_castling_rights.wks, self.current_castling_rights.bks,
-                                           self.current_castling_rights.wqs, self.current_castling_rights.bqs)
+        temp_CastleRights = CastleRights(self.current_castling_rights.wks, self.current_castling_rights.bks,
+                                         self.current_castling_rights.wqs, self.current_castling_rights.bqs)
         moves = self.get_all_possible_moves()
         if self.white_to_move:
             self.get_castle_moves(self.white_king_location[0], self.white_king_location[1], moves)
@@ -214,7 +253,7 @@ class GameState():
             self.stale_mate = False
 
         self.en_passant_possible = temp_en_passant_possible
-        self.current_castling_rights = temp_castle_rights
+        self.current_castling_rights = temp_CastleRights
         return moves
 
     def in_check(self):
@@ -235,27 +274,26 @@ class GameState():
         else:
             return self.square_under_attack(self.black_king_location[0], self.black_king_location[1])
 
-    def square_under_attack(self, r, c):
+    def square_under_attack(self, r, col):
         """
-    Determine if the square at position (r, c) is under attack by the opponent.
+        Determine if the square at position (r, c) is under attack by the opponent.
 
-    Args:
-        r (int): The row index of the square.
-        c (int): The column index of the square.
+        Args:
+            r (int): The row index of the square.
+            col (int): The column index of the square.
 
-    Returns:
-        bool: True if the square is under attack, False otherwise.
+        Returns:
+            bool: True if the square is under attack, False otherwise.
 
-    This method calculates whether the square at position (r, c) on the chessboard is under attack
-    by any piece of the opponent. It does so by temporarily switching the turn to the opponent's side,
-    obtaining all possible moves for the opponent, and checking if any of those moves target the specified square.
-
-    """
+        This method calculates whether the square at position (r, c) on the chessboard is under attack
+        by any piece of the opponent. It does so by temporarily switching the turn to the opponent's side,
+        obtaining all possible moves for the opponent, and checking if any of those moves target the specified square.
+        """
         self.white_to_move = not self.white_to_move
         oppMoves = self.get_all_possible_moves()
         self.white_to_move = not self.white_to_move
         for move in oppMoves:
-            if move.end_row == r and move.end_col == c:
+            if move.end_row == r and move.end_col == col:
                 return True
         return False
 
@@ -324,25 +362,27 @@ class GameState():
                 elif move.end_col == 7:
                     self.current_castling_rights.bks = False
 
-    def get_castle_moves(self, r, c, moves):
+    def get_castle_moves(self, r, col, moves):
         """
             Get castle moves for the king at the specified position (r, c).
 
             Args:
                 r (int): Row of the king.
-                c (int): Column of the king.
+                col (int): Column of the king.
                 moves (list): List to store the generated moves.
 
             This method generates castle moves for the king at the specified position on the chessboard.
             It considers both king-side and queen-side castling moves if they are valid.
 
         """
-        if self.square_under_attack(r, c):
+        if self.square_under_attack(r, col):
             return
-        if (self.white_to_move and self.current_castling_rights.wks) or (not self.white_to_move and self.current_castling_rights.bks):
-            self.get_king_side_castle_moves(r, c, moves)
-        if (self.white_to_move and self.current_castling_rights.wqs) or (not self.white_to_move and self.current_castling_rights.bqs):
-            self.get_queen_side_castle_moves(r, c, moves)
+        if ((self.white_to_move and self.current_castling_rights.wks) or
+                (not self.white_to_move and self.current_castling_rights.bks)):
+            self.get_king_side_castle_moves(r, col, moves)
+        if ((self.white_to_move and self.current_castling_rights.wqs) or
+                (not self.white_to_move and self.current_castling_rights.bqs)):
+            self.get_queen_side_castle_moves(r, col, moves)
 
     def get_king_side_castle_moves(self, r, c, moves):
         """
@@ -413,7 +453,7 @@ class GameState():
             if c - 1 >= 0:
                 if self.board[r + 1][c - 1][0] == 'w':
                     moves.append(Move((r, c), (r + 1, c - 1), self.board))
-                elif ((r + 1, c - 1) == self.en_passant_possible):
+                elif (r + 1, c - 1) == self.en_passant_possible:
                     moves.append(Move((r, c), (r + 1, c - 1), self.board, enpassant_possible=True))
             if c + 1 <= 7:
                 if self.board[r + 1][c + 1][0] == 'w':
@@ -710,7 +750,7 @@ class GameState():
                 moves (list): List to store the generated moves.
 
             This method generates all possible moves for a king at the specified position on the chessboard.
-            It considers the king's possible moves in all directions, checking for validity and capturing opponent pieces.
+            It considers the king possible moves in all directions, checking for validity and capturing opponent pieces
 
         """
         if self.white_to_move:
@@ -797,4 +837,13 @@ class GameState():
                     moves.append(Move((r, c), (r + 1, c + 1), self.board))
 
     def random_move(self, valid_moves):
+        """
+        Generate a random move from the list of valid moves.
+
+        Args:
+            valid_moves (list): List of valid moves.
+
+        Returns:
+            ChessMove: A random move from the list of valid moves.
+        """
         return valid_moves[random.randint(0, len(valid_moves) - 1)]
