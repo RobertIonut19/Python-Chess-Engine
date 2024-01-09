@@ -8,6 +8,8 @@ class ChessModel():
         self.player_clicks = []  # keeps track of player_clicks  (example [(6,1), (4, 1)] )
         self.valid_moves = []  # list of valid moves
 
+        self.game_situation = "menu"
+
         self.game_over = False
         self.animate = False
         self.move_made = False  # flag variable for when a move is made

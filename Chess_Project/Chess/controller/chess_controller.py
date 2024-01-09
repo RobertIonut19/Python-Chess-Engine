@@ -3,10 +3,9 @@ import sys
 import pygame as p
 from Chess_Project.Chess.model import chess_model as model
 from Chess_Project.Chess.view import chess_view as view
-from Chess_Project.Chess.view.chess_view import ChessView
 from Chess_Project.Chess.model.moves.move_class import Move
-from Chess_Project.Chess.model.moves.pieces_moves import random_move
 from Chess_Project.Chess.model.game_state_class import GameState
+from Chess_Project.Chess.view import menu_buttons_view as menu
 class ChessController():
     def __init__(self):
         self.chess_model = model.ChessModel()
@@ -15,8 +14,7 @@ class ChessController():
 
 
 
-    def handle_input(self, screen, event):
-
+    def handle_input(self, screen, event, game_situation):
         # model part
 
         human_turn = (self.chess_model.game_state.white_to_move and self.chess_model.white_player) or (not self.chess_model.game_state.white_to_move and self.chess_model.black_player)
@@ -58,12 +56,12 @@ class ChessController():
 
 
             # AI move
-            # if not self.chess_model.game_over and not human_turn:
-            #     move = random_move(self.chess_model.valid_moves)
-            #     self.chess_model.game_state.make_move(move)
-            #     self.chess_model.game_state.move_log.append(move)
-            #     self.chess_model.animate = True
-            #     self.chess_model.move_made = True
+            if not self.chess_model.game_over and not human_turn:
+                move = self.chess_model.game_state.random_move(self.chess_model.valid_moves)
+                self.chess_model.game_state.make_move(move)
+                self.chess_model.game_state.move_log.append(move)
+                self.chess_model.animate = True
+                self.chess_model.move_made = True
 
         elif event.type == p.KEYDOWN:
             if event.key == p.K_z:
@@ -97,6 +95,23 @@ class ChessController():
             self.chess_model.animate = False
             self.end_game(screen)
 
+    def handle_menu_input(self, event):
+        # Quit the game
+        if event.type == p.QUIT:
+            self.chess_view.game_situation = "quit"
+            sys.exit()
+        if event.type == p.KEYDOWN and event.key == p.K_ESCAPE:  # posibila greseala
+            self.chess_view.game_situation = "quit"
+
+        for button in menu.BUTTONS:
+            button.check_click(event)
+    def game_initialization(self, white_player, black_player, game_situation, running):
+        self.chess_model.white_player = white_player
+        self.chess_model.black_player = black_player
+        self.chess_model.game_situation = game_situation
+        self.chess_model.running = running
+        self.chess_view.game_initialization()
+
     def end_game(self, screen):
         if self.chess_model.game_state.check_mate:
             self.chess_model.game_over = True
@@ -107,3 +122,5 @@ class ChessController():
         elif self.chess_model.game_state.stale_mate:
             self.chess_model.game_over = True
             view.draw_end_game(screen, "Stalemate")
+
+

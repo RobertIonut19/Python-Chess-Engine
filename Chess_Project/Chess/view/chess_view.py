@@ -1,6 +1,7 @@
 import pygame as p
 
 from Chess_Project.Chess.view import board_rendering
+from Chess_Project.Chess.view import menu_buttons_view as menu
 
 B_WIDTH = 600  # width of the chessboard display window
 B_HEIGHT = 600  # height of the chessboard display window
@@ -12,6 +13,8 @@ SQ_SIZE = B_HEIGHT // DIMENSION  # size of each square on the chessboard
 
 MAX_FPS = 60  # maximum frames per second for the display
 
+FONT_SIZE = 32
+
 WHITE = (162,213,198)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
@@ -19,12 +22,66 @@ GRAY = (200, 200, 200)
 class ChessView:
     def __init__(self):
         p.init()
-        self.screen = p.display.set_mode((B_WIDTH + LEFT_PANEL_WIDTH, B_HEIGHT + 25))
+        self.screen = p.display.set_mode((B_WIDTH, B_HEIGHT))
         self.screen.fill(p.Color("white"))
         p.display.set_caption("Chess")
         board_rendering.load_images()
         self.clock = p.time.Clock()
 
+        menu.load_images()
+        self.game_situation = "menu"
+        self.white_player = True
+        self.black_player = True
+        self.running = True
+
+        self.create_buttons(self.screen)
+
+
+    def draw(self, game_state, square_selected=(), game_situation="game"):
+        if game_situation == "menu":
+            self.draw_menu()
+        elif game_situation == "game":
+            self.draw_board(game_state, square_selected)
+
+    def create_buttons(self, screen):
+        player_one_button = menu.Button(screen, B_WIDTH // 2 - menu.BUTTON_WIDTH // 2,
+                                   B_HEIGHT // 2 - 35 - menu.BUTTON_HEIGHT - menu.BUTTON_MARGIN, menu.MENU_IMAGES[0],
+                                   self.set_ai_white)
+        player_two_button = menu.Button(screen, B_WIDTH // 2 - menu.BUTTON_WIDTH // 2, B_HEIGHT // 2 - 35, menu.MENU_IMAGES[1],
+                                   self.set_ai_black)
+        play_button = menu.Button(screen, B_WIDTH // 2 - menu.BUTTON_WIDTH // 2,
+                             B_HEIGHT // 2 - 35 + menu.BUTTON_HEIGHT + menu.BUTTON_MARGIN,
+                             menu.MENU_IMAGES[2], self.start_game)
+        quit_button = menu.Button(screen, B_WIDTH // 2 - menu.BUTTON_WIDTH // 2,
+                             B_HEIGHT // 2 + 3 * (menu.BUTTON_HEIGHT + menu.BUTTON_MARGIN),
+                             menu.MENU_IMAGES[3],self.quit_game)
+
+        menu.BUTTONS = [player_one_button, player_two_button, play_button, quit_button]
+
+
+    def draw_menu(self):
+        self.screen.blit(menu.MENU_IMAGES[4], (0, 0))
+        for button in menu.BUTTONS:
+            button.draw(self.screen, p.font.Font(None, FONT_SIZE))
+    def start_game(self):
+        self.game_situation = "game"
+
+        print("start game")
+
+    def set_ai_white(self):
+        self.white_player = False
+        print("set ai white")
+
+    def set_ai_black(self):
+        self.black_player = False
+        print("set ai black")
+
+    def quit_game(self):
+        self.running = False
+        self.game_situation = "game"
+        print("quit game")
+    def draw_board(self, game_state, square_selected=()):
+        board_rendering.draw_game_state(self.screen, game_state, square_selected)
 
     def animate_move(self, move, screen, board, clock):
         """
@@ -60,8 +117,11 @@ class ChessView:
             screen.blit(board_rendering.IMAGES[move.piece_moved], p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
             p.display.flip()
             clock.tick(60)
-    def draw_board(self, game_state, square_selected=()):
-        board_rendering.draw_game_state(self.screen, game_state, square_selected)
+
+    def game_initialization(self):
+        self.screen = p.display.set_mode((B_WIDTH + LEFT_PANEL_WIDTH, B_HEIGHT + 25))
+        self.screen.fill(p.Color("white"))
+
 
 def draw_end_game(screen, text):
     """

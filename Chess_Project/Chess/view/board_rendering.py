@@ -1,4 +1,5 @@
 import pygame as p
+from Chess_Project.Chess.view import menu_buttons_view
 
 B_WIDTH = 600  # width of the chessboard display window
 B_HEIGHT = 600  # height of the chessboard display window
@@ -21,6 +22,7 @@ def load_images():
     Initializes a global dictionary of images for chess pieces.
     This function loads and scales images for each chess piece and stores them in the IMAGES dictionary.
     """
+    # Board pieces
     pieces = ["wp", "wR", "wN", "wB", "wK", "wQ", "bp", "bR", "bN", "bB", "bK", "bQ"]
     path = "view/images/pieces/"
 
@@ -29,7 +31,6 @@ def load_images():
             IMAGES[piece] = p.transform.scale(p.image.load(path + piece + ".png"), (SQ_SIZE - 14, SQ_SIZE - 14))
         else:
             IMAGES[piece] = p.transform.scale(p.image.load(path + piece + ".png"), (SQ_SIZE - 10, SQ_SIZE - 10))
-
 
 def draw_game_state(screen, gs, square_selected):
     """
