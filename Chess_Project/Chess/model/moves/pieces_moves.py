@@ -1,5 +1,5 @@
-from Chess_Project.Chess.model.moves.move_class import Move
-from Chess_Project.Chess.model.game_state_class import GameState
+from .move_class import Move
+from ..game_state_class import GameState
 import random
 
 

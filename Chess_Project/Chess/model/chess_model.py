@@ -1,4 +1,4 @@
-from Chess_Project.Chess.model.game_state_class import GameState
+from .game_state_class import GameState
 
 
 class ChessModel:

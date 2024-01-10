@@ -1,5 +1,3 @@
-
-
 import pygame as p
 
 BUTTON_WIDTH, BUTTON_HEIGHT = 200, 50

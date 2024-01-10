@@ -1,5 +1,5 @@
-from Chess_Project.Chess.model.moves.castle_moves import CastleRights
-from Chess_Project.Chess.model.moves.move_class import Move
+from .moves.castle_moves import CastleRights
+from .moves.move_class import Move
 import copy as c
 import random
 

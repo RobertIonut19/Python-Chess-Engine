@@ -1,6 +1,6 @@
 import pygame as p
 
-from Chess_Project.Chess.view import board_rendering
+from .board_rendering import *
 from Chess_Project.Chess.view import menu_buttons_view as menu
 
 B_WIDTH = 600  # width of the chessboard display window
@@ -54,7 +54,7 @@ class ChessView:
         self.screen = p.display.set_mode((B_WIDTH, B_HEIGHT))
         self.screen.fill(p.Color("white"))
         p.display.set_caption("Chess")
-        board_rendering.load_images()
+        load_images()
         self.clock = p.time.Clock()
 
         menu.load_images()
@@ -185,7 +185,7 @@ class ChessView:
         Returns:
             None
         """
-        board_rendering.draw_game_state(self.screen, game_state, square_selected)
+        draw_game_state(self.screen, game_state, square_selected)
 
     @staticmethod
     def animate_move(move, screen, board, clock):
@@ -208,17 +208,17 @@ class ChessView:
         frame_count = (abs(dR) + abs(dC)) * frames_per_square
         for frame in range(frame_count + 1):
             r, c = (move.start_row + dR * frame / frame_count, move.start_col + dC * frame / frame_count)
-            board_rendering.draw_board(screen)
-            board_rendering.draw_pieces(screen, board)
+            draw_board(screen)
+            draw_pieces(screen, board)
             # erase the piece moved from its ending square
             color = colors[(move.end_row + move.end_col) % 2]
             end_square = p.Rect(move.end_col * SQ_SIZE, move.end_row * SQ_SIZE, SQ_SIZE, SQ_SIZE)
             p.draw.rect(screen, color, end_square)
             # draw captured piece onto rectangle
             if move.piece_captured != '--':
-                screen.blit(board_rendering.IMAGES[move.piece_captured], end_square)
+                screen.blit(IMAGES[move.piece_captured], end_square)
             # draw moving piece
-            screen.blit(board_rendering.IMAGES[move.piece_moved], p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
+            screen.blit(IMAGES[move.piece_moved], p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
             p.display.flip()
             clock.tick(60)
 

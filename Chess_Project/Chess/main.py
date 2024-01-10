@@ -1,9 +1,29 @@
+"""
+Main Module for Chess Game
+
+This module contains the main entry point for the Chess game. It initializes the ChessView and ChessController,
+manages the menu loop, and controls the game loop.
+
+Author: Rascanu Robert
+Date: 10/01/2024
+
+"""
 from Chess_Project.Chess.view import chess_view as view
 from Chess_Project.Chess.controller import chess_controller as controller
 import pygame as p
 
 
 def main():
+    """
+        Main function to run the Chess game.
+
+        This function initializes the ChessView and ChessController, manages the menu loop, and controls the game loop.
+
+        Returns:
+            None
+        """
+
+    # Initialize ChessView and ChessController
     chess_view = view.ChessView()
     chess_controller = controller.ChessController()
 
@@ -18,6 +38,7 @@ def main():
         p.display.flip()
         chess_view.clock.tick(view.MAX_FPS)
 
+    # game initialization - # Initialize the game based on menu choices
     chess_controller.game_initialization(chess_controller.chess_view.white_player,
                                          chess_controller.chess_view.black_player,
                                          chess_controller.chess_view.game_situation,

@@ -1,4 +1,4 @@
-from Chess_Project.Chess.model.moves.move_class import Move
+from .move_class import Move
 
 
 class CastleRights:
