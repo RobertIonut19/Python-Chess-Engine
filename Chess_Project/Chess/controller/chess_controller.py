@@ -92,6 +92,9 @@ class ChessController:
                     self.chess_model.game_state.move_log.pop()
                 self.chess_model.animate = False
                 self.chess_model.move_made = True
+                self.chess_model.game_over = False
+                self.chess_model.game_state.check_mate = False
+                self.chess_model.game_state.stale_mate = False
             if event.key == p.K_r:
                 self.chess_model.game_state = GameState()
                 self.chess_model.valid_moves = self.chess_model.game_state.get_valid_moves()
